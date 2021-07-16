@@ -1,21 +1,27 @@
 import React from 'react'
 
 import axios from 'axios'
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
 import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 
 class AutoCompleteAddress extends React.PureComponent {
     state = {
-        results: [],        
+        results: [],
+        // searchQuery: ''
     }
 
     _getSearchResult = e => {
+        // this.setState({ searchQuery: e.target.value })
         
       if(e.target.value) {
         this.isBangla(e.target.value)       
         }
         else {
+            console.log('EMPTY RESULTS')
             this.setState({
                 results: []
             })
@@ -56,7 +62,7 @@ class AutoCompleteAddress extends React.PureComponent {
 
     render() {
         const { results } = this.state
-        const { selectAddress } = this.props
+        const { selectAddress, something } = this.props
         // console.log(results);
         return (
             <Box margin='4rem'>
@@ -68,6 +74,10 @@ class AutoCompleteAddress extends React.PureComponent {
                     options={results && results.length > 0 ? results : []}
                     getOptionLabel={option => option.PostInfo}
                     filterOptions={(options, state) => options}
+                    clearOnBlur={false}
+                    // freeSolo={true}
+                    autoHighlight
+                    clearOnEscape
                     ListboxProps={
                         {
                           style:{
@@ -83,11 +93,28 @@ class AutoCompleteAddress extends React.PureComponent {
                             variant='outlined'
                             margin='dense'
                             size='small'
+                            // value={ this.state.searchQuery }
                             onChange={this._getSearchResult}
-                            multiline
-                            rowsMax={5}
+                            
                         />
                     }
+                    // highlights
+                    renderOption={(option, { inputValue }) => {
+                        // console.log('option', option)
+                        // console.log('inputValue', inputValue)
+                        const matches = match(option.PostInfo, inputValue);
+                        const parts = parse(option.PostInfo, matches);
+                        
+                        return (
+                            <Box>
+                               {parts.map((part, index) => (
+                                            <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+                                                {part.text}
+                                            </span>
+                                        ))}
+                            </Box>
+                        );
+                      }}
                 />
                 
             </Box>

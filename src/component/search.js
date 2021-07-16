@@ -22,6 +22,9 @@ class Search extends Component {
 
         })
     }
+    keyType = () => {
+        
+    }
 
     render() { 
         const { district } = this.state
